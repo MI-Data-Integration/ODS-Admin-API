@@ -14,21 +14,21 @@ LABEL maintainer="Ed-Fi Alliance, LLC and Contributors <techsupport@ed-fi.org>"
 # Alpine image does not contain Globalization Cultures library so we need to install ICU library to get for LINQ expression to work
 # Disable the globaliztion invariant mode (set in base image)
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
-ARG ADMIN_API_VERSION
-ENV ADMIN_API_VERSION="${ADMIN_API_VERSION:-2.2.0}"
-ENV ASPNETCORE_HTTP_PORTS=80
+ARG ADMIN_API_PACKAGE=EdFi.Suite3.ODS.AdminApi.0.1.0
+ENV ADMIN_API_PACKAGE="${ADMIN_API_PACKAGE}"
+ENV ASPNETCORE_HTTP_PORTS=8080
 
 WORKDIR /app
 
 COPY --chmod=500 Settings/mssql/run.sh /app/run.sh
 COPY Settings/mssql/log4net.config /app/log4net.txt
+COPY ${ADMIN_API_PACKAGE}.nupkg /app/AdminApi.zip
 
-RUN umask 0077  && \
+RUN umask 0077 && \
     wget -nv -O /tmp/msodbcsql18_18.4.1.1-1_amd64.apk https://download.microsoft.com/download/7/6/d/76de322a-d860-4894-9945-f0cc5d6a45f8/msodbcsql18_18.4.1.1-1_amd64.apk && \
     wget -nv -O /tmp/mssql-tools18_18.4.1.1-1_amd64.apk https://download.microsoft.com/download/7/6/d/76de322a-d860-4894-9945-f0cc5d6a45f8/mssql-tools18_18.4.1.1-1_amd64.apk && \
     apk --no-cache add --allow-untrusted /tmp/msodbcsql18_18.4.1.1-1_amd64.apk  && \
     apk --no-cache add --allow-untrusted /tmp/mssql-tools18_18.4.1.1-1_amd64.apk && \
-    wget -nv -O /app/AdminApi.zip "https://pkgs.dev.azure.com/ed-fi-alliance/Ed-Fi-Alliance-OSS/_apis/packaging/feeds/EdFi/nuget/packages/EdFi.Suite3.ODS.AdminApi/versions/${ADMIN_API_VERSION}/content" && \
     unzip /app/AdminApi.zip AdminApi/* -d /app/ && \
     cp -r /app/AdminApi/. /app/ && \
     rm -f /app/AdminApi.zip && \
@@ -46,4 +46,3 @@ EXPOSE ${ASPNETCORE_HTTP_PORTS}
 USER edfi
 
 ENTRYPOINT [ "/app/run.sh" ]
-
