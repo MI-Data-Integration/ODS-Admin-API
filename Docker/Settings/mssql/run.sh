@@ -15,7 +15,7 @@ fi
 export ADMIN_WAIT_MSSQL_HOSTS_ARR=($ADMIN_WAIT_MSSQL_HOSTS)
 for HOST in ${ADMIN_WAIT_MSSQL_HOSTS_ARR[@]}
 do
-  until /opt/mssql-tools18/bin/sqlcmd -C -S "$HOST" -U "$SQLSERVER_USER" -P "$SQLSERVER_PASSWORD" -d "EdFi_Admin" -Q "IF EXISTS (SELECT * FROM sys.schemas WHERE name = '$schema') SELECT 1" > /dev/null 2>&1
+  until /opt/mssql-tools18/bin/sqlcmd -C -S "$HOST" -U "$SQLSERVER_USER" -P "$SQLSERVER_PASSWORD" -d "$SQLSERVER_ADMIN_INITIALCATALOG" -Q "IF EXISTS (SELECT * FROM sys.schemas WHERE name = '$schema') SELECT 1" > /dev/null 2>&1
   do
     >&2 echo "EdFi_Admin is unavailable - sleeping"
     sleep 10
@@ -25,13 +25,14 @@ done
 >&2 echo "MSSQL is up - executing command"
 exec $cmd
 
+# read-only pipeline means read-only
+#if [[ -f /ssl/server.crt ]]; then
+#  cp /ssl/server.crt /usr/local/share/ca-certificates/
+#  update-ca-certificates
+#fi
 
-if [[ -f /ssl/server.crt ]]; then
-  cp /ssl/server.crt /usr/local/share/ca-certificates/
-  update-ca-certificates
-fi
-
+# read-only pipeline means read-only
 # Writing permissions for multitenant environment so the user can create tenants
-chmod 664 /app/appsettings.json
+#chmod 664 /app/appsettings.json
 
 dotnet EdFi.Ods.AdminApi.dll
