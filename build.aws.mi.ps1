@@ -17,7 +17,7 @@ dotnet build $slnFile -c $Configuration --no-restore -p:InformationalVersion=$Pa
 dotnet publish $prjFile -c $Configuration --no-restore --no-build /p:EnvironmentName=Production -o $publishDir
 
 $nuspecContent = Get-Content $nuspecTemplate -Raw
-$nuspecContent = $nuspecContent.Replace('<id>EdFi.Suite3.ODS.AdminApi</id>','<id>MIDH.Ods.AdminApi</id>')
+$nuspecContent = $nuspecContent.Replace('<id>EdFi.Suite3.ODS.AdminApi</id>','<id>MIDH.Ods.AdminApi.6</id>')
 $nuspecContent = $nuspecContent.Replace('<version>1.0.0.0</version>',"<version>$PackageVersion</version>")
 $nuspecContent = $nuspecContent.Replace('exclude="AppCommon/**/*.*;E2E Tests/**;Docker/**;Compose/**"','exclude="AppCommon/**/*.*;E2E Tests/**;Docker/**;Compose/**;**/.*"')
 Set-Content -Path $nuspecFinal -Value $nuspecContent
